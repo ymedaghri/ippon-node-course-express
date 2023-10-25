@@ -2,8 +2,7 @@ import jwt from 'jsonwebtoken';
 import express, { Express, Request, Response, NextFunction } from 'express'
 import swaggerUi from 'swagger-ui-express'
 import swaggerJsdoc from 'swagger-jsdoc'
-import registerPersonRoute from './routes/person'
-import registerSecretAgentRoute from './routes/secretAgent'
+import registerAllRoutes from './routes/index'
 
 const app: Express = express(), port = 3000
 
@@ -55,8 +54,7 @@ function monMiddlewareJWT(req: Request, res: Response, next: NextFunction) {
 app.use('/protected', monMiddlewareJWT);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
-registerPersonRoute(app)
-registerSecretAgentRoute(app)
+registerAllRoutes(app)
 
 const server = app.listen(port, () => {
     console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
