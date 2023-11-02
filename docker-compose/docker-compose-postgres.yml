@@ -1,0 +1,20 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    container_name: postgres-kanban
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=kanban
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  pgadmin:
+    container_name: pgadmin-postgres-kanban
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ymedaghri@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"

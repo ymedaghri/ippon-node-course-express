@@ -4,8 +4,8 @@
   "description": "Express App for Course Ippon",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
+    "build": "rimraf ./dist && tsc && ncp database-mongo dist/database-mongo && ncp database-postgres dist/database-postgres",
+    "start": "NODE_ENV=production node dist/index.js",
     "dev": "nodemon",
     "test": "vitest"
   },
@@ -15,9 +15,10 @@
     ],
     "ext": "ts",
     "ignore": [
+      "**/*.test.ts",
       "**/*.spec.ts"
     ],
-    "exec": "ts-node index.ts"
+    "exec": "ts-node src/index.ts"
   },
   "author": "ymedaghri@gmail.com",
   "license": "ISC",
@@ -38,7 +39,9 @@
     "@types/supertest": "^2.0.15",
     "@types/swagger-jsdoc": "^6.0.2",
     "@types/swagger-ui-express": "^4.1.5",
+    "ncp": "^2.0.0",
     "nodemon": "^3.0.1",
+    "rimraf": "^5.0.5",
     "supertest": "^6.3.3",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2",
