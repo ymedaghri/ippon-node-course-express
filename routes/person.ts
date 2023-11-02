@@ -5,6 +5,8 @@ export default (app: Application) => {
     * @swagger
     * /person/{nom}:
     *   get:
+    *     tags:
+    *       - 🕵🏽 MI6
     *     summary: Recevoir un Hello World <Nom>.
     *     description: Toujours le fameux Hello world.
     *     parameters:

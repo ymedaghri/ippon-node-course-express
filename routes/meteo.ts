@@ -8,6 +8,8 @@ export default (app: Application) => {
     * @swagger
     * /meteo/{ville}:
     *   get:
+    *     tags:
+    *       - 🌤️ Meteo
     *     summary: Récupérer la météo d'une ville passée en paramètres.
     *     description: Retourne la météo de la ville passée en paramètre au format JSON
     *     parameters:

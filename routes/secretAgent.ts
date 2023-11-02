@@ -5,6 +5,8 @@ export default (app: Application) => {
     * @swagger
     * /protected/person:
     *   get:
+    *     tags:
+    *       - 🕵🏽 MI6
     *     security:
     *       - bearerAuth: []
     *     summary: Connaitre l'identité d'un agent de la couronne <Nom>.

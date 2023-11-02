@@ -3,17 +3,27 @@ import { Application, Request, Response } from 'express';
 const board = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 const PLAYER_MARK = 1
 const COMPUTER_MARK = 2
+let invincible = false;
 
 export default (app: Application) => {
     /**
     * @swagger
     * /new-game:
     *   post:
+    *     tags:
+    *       - 🕹️ Tic Tac Toe
     *     summary: Create a new tic tac toe game.
-    *     description: Create a new tic tac toe game and return an empty board.
+    *     description: Create a new tic tac toe game and return an empty board of nine cells.
+    *     parameters:
+    *       - name: invincible
+    *         in: query
+    *         description: A boolean to make the computer invincible
+    *         required: false
+    *         schema:
+    *           type: string
     *     responses:
-    *       200:
-    *         description: un message simple.
+    *       201:
+    *         description: A board of nine cells initialized with zeros.
     *         content:
     *           application/json:
     *             schema:
@@ -21,11 +31,18 @@ export default (app: Application) => {
     *               properties:
     *                 board:
     *                   type: array
+    *                   example: [0, 0, 0, 0, 0, 0, 0, 0, 0]                   
     *                   items:
     *                     type: number
     *                     enum: [0, 1, 2]
     */
     app.post('/new-game', (req: Request, res: Response) => {
+        const invincibleParam = req.query.invincible;
+        if(!!invincibleParam){
+            invincible=true
+        } else {
+            invincible=false
+        }
         board.forEach((_, index) => board[index] = 0);
         res.status(201).json({ board });
     });
@@ -34,11 +51,13 @@ export default (app: Application) => {
     * @swagger
     * /mark-player/{cellNumber}:
     *   put:
+    *     tags:
+    *       - 🕹️ Tic Tac Toe
     *     summary: Marks the sell with player mark (1).
     *     description: Marks the sell with player mark (1).
     *     responses:
     *       200:
-    *         description: un message simple.
+    *         description: A board of nine cells updated with the current player mark.
     *         content:
     *           application/json:
     *             schema:
@@ -46,6 +65,7 @@ export default (app: Application) => {
     *               properties:
     *                 board:
     *                   type: array
+    *                   example: [0, 0, 1, 0, 0, 0, 0, 0, 0]                   
     *                   items:
     *                     type: number
     *                     enum: [0, 1, 2]
@@ -62,11 +82,13 @@ export default (app: Application) => {
     * @swagger
     * /get-computer-mark:
     *   get:
+    *     tags:
+    *       - 🕹️ Tic Tac Toe
     *     summary: Get the computer mark.
     *     description: Let the computer play and mark its position.
     *     responses:
     *       200:
-    *         description: un message simple.
+    *         description: A board of nine cells updated with the current computer mark.
     *         content:
     *           application/json:
     *             schema:
@@ -74,6 +96,7 @@ export default (app: Application) => {
     *               properties:
     *                 board:
     *                   type: array
+    *                   example: [2, 0, 1, 0, 0, 0, 0, 0, 0]                   
     *                   items:
     *                     type: number
     *                     enum: [0, 1, 2]
@@ -103,6 +126,28 @@ export const playComputer = (board: number[]) => {
     if (board[4] === 0) {
         board[4] = COMPUTER_MARK
         return board
+    }
+
+    if (invincible) {
+        // If the center is taken by the player and one corner is empty take it
+        if (board[4] === PLAYER_MARK) {
+            if (board[0] === 0) {
+                board[0] = COMPUTER_MARK
+                return board
+            }
+            if (board[2] === 0) {
+                board[2] = COMPUTER_MARK
+                return board
+            }
+            if (board[6] === 0) {
+                board[6] = COMPUTER_MARK
+                return board
+            }
+            if (board[8] === 0) {
+                board[8] = COMPUTER_MARK
+                return board
+            }
+        }
     }
 
     // Take any available move
