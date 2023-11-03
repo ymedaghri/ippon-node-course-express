@@ -100,17 +100,18 @@ Prisma.NullTypes = {
  * Enums
  */
 
-exports.Prisma.PostScalarFieldEnum = {
+exports.Prisma.ProjectScalarFieldEnum = {
   id: 'id',
-  title: 'title',
-  body: 'body',
-  authorId: 'authorId'
+  name: 'name'
 };
 
-exports.Prisma.UserScalarFieldEnum = {
+exports.Prisma.TicketScalarFieldEnum = {
   id: 'id',
-  email: 'email',
-  name: 'name'
+  code: 'code',
+  description: 'description',
+  status: 'status',
+  category: 'category',
+  projectId: 'projectId'
 };
 
 exports.Prisma.SortOrder = {
@@ -122,11 +123,21 @@ exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 };
+exports.Status = exports.$Enums.Status = {
+  TODO: 'TODO',
+  DOING: 'DOING',
+  DONE: 'DONE'
+};
 
+exports.Category = exports.$Enums.Category = {
+  ETUDE_FONDS_MARINS: 'ETUDE_FONDS_MARINS',
+  BIOLOGIE_MARINE: 'BIOLOGIE_MARINE',
+  CONSERVATION_MARINE: 'CONSERVATION_MARINE'
+};
 
 exports.Prisma.ModelName = {
-  Post: 'Post',
-  User: 'User'
+  Project: 'Project',
+  Ticket: 'Ticket'
 };
 
 /**

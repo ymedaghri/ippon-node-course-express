@@ -1,0 +1,5 @@
+# .prettierignore
+dist/
+node_modules/
+database-mongo/prisma/generated
+database-postgres/prisma/generated

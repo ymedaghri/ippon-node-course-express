@@ -1,35 +1,81 @@
-import { PrismaClient as MongoPrismaClient, User } from "../database-mongo/prisma/generated/client-mongo";
-import { PrismaClient as PostgresPrismaClient, Post } from "../database-postgres/prisma/generated/client-postgres";
+import {
+  PrismaClient as MongoPrismaClient,
+  Prisma,
+  Project,
+  Ticket,
+} from '../database-mongo/prisma/generated/client-mongo';
+import { PrismaClient as PostgresPrismaClient } from '../database-postgres/prisma/generated/client-postgres';
 
-export const mongoPrismaClient = new MongoPrismaClient()
-export const postgresPrismaClient = new PostgresPrismaClient()
+export const mongoPrismaClient = new MongoPrismaClient();
+export const postgresPrismaClient = new PostgresPrismaClient();
 
 export type repositories = {
-    mongoRepository: {
-        createUser: () => Promise<User>
-    }
-    postgresRepository: {
-    }
-}
+  mongoRepository: {
+    createProject: (projectName: string) => Promise<Project>;
+    deleteProject: (id: string) => Promise<
+      [
+        Prisma.BatchPayload,
+        {
+          id: string;
+          name: string;
+        },
+      ]
+    >;
+    createTicket: (ticket: Omit<Ticket, 'id'>) => Promise<Ticket>;
+    getAllProjects: () => Promise<Project[]>;
+    deleteTicket: (id: string, projectId: string) => Promise<Ticket>;
+  };
+  postgresRepository: Record<string, string>;
+};
 
-const repositories: repositories = {
-    mongoRepository: {
-        createUser: () => {
-            return mongoPrismaClient.user.create({
-                data: {
-                    name: 'Rich',
-                    email: 'hello@prisma.com',
-                    posts: {
-                        create: {
-                            title: 'My first post',
-                            body: 'Lots of really interesting stuff'
-                        },
-                    },
-                },
-            })
-        }
+export const databaseRepositories: repositories = {
+  mongoRepository: {
+    createProject: (projectName: string) => {
+      return mongoPrismaClient.project.create({
+        data: {
+          name: projectName,
+        },
+      });
     },
-    postgresRepository: {}
-}
+    deleteProject: async (id: string) => {
+      const transaction = await mongoPrismaClient.$transaction([
+        mongoPrismaClient.ticket.deleteMany({
+          where: {
+            projectId: id,
+          },
+        }),
+        mongoPrismaClient.project.delete({
+          where: {
+            id,
+          },
+        }),
+      ]);
 
-export default repositories
+      return transaction;
+    },
+    createTicket: async (ticket: Omit<Ticket, 'id'>) => {
+      return mongoPrismaClient.ticket.create({
+        data: ticket,
+      });
+    },
+    getAllProjects: async () => {
+      return mongoPrismaClient.project.findMany({
+        include: {
+          tickets: true,
+        },
+      });
+    },
+    deleteTicket: async (id: string, projectId: string) => {
+      const ticket = await mongoPrismaClient.ticket.delete({
+        where: {
+          id,
+          projectId,
+        },
+      });
+      return ticket;
+    },
+  },
+  postgresRepository: {},
+};
+
+export default databaseRepositories;

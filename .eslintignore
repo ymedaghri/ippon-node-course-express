@@ -1,0 +1,6 @@
+# .eslintignore
+dist/
+node_modules/
+database-mongo/prisma/generated
+database-postgres/prisma/generated
+docker-compose
