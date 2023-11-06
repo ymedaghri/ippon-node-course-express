@@ -1,11 +1,10 @@
 import appProvider, { port } from './app';
 import {
-  databaseRepositories,
   mongoPrismaClient,
   postgresPrismaClient,
 } from './repositories';
 
-const app = appProvider(databaseRepositories);
+const app = appProvider();
 
 const server = app.listen(port, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);

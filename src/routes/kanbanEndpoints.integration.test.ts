@@ -7,6 +7,8 @@ import {
   Category,
   Status,
 } from '../../database-mongo/prisma/generated/client-mongo';
+import { iocContainer } from '../tsoa/ioc';
+import { KanbanEndpoints } from './kanbanEndpoints';
 
 let repositoriesMock: repositories, app: Express;
 
@@ -68,19 +70,24 @@ describe(`Tests d'API`, () => {
       },
       postgresRepository: {},
     };
+    iocContainer.set(KanbanEndpoints, new KanbanEndpoints(repositoriesMock.mongoRepository))
     app = appProvider(repositoriesMock);
   });
   describe(`POST /kanban-projects`, () => {
-    test('should return 400 Bad Request for POST when name is not send in the body', async () => {
+    test('should return 422 Bad Request for POST when name is not send in the body', async () => {
       // When
       const response = await request(app).post('/kanban-projects');
 
       // Then
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(422);
       expect(response.type).toBe('application/json');
       expect(response.body).toStrictEqual({
-        error:
-          'A "name" property of type string is required in the request body.',
+        "details": {
+          "requestBody.name": {
+            "message": "'name' is required",
+          },
+        },
+        "message": "Validation Failed",
       });
     });
     test('should return 201 when sending all expected data in POST', async () => {
@@ -149,70 +156,58 @@ describe(`Tests d'API`, () => {
   });
 
   describe(`POST /kanban-projects/65451c26ac6932248cad1543/tickets`, () => {
-    test('should return 400 Bad Request for POST when code is not send in the body', async () => {
+    test('should return 422 Bad Request for POST when nothing is sent in the body', async () => {
       // When
       const response = await request(app).post(
         '/kanban-projects/65451c26ac6932248cad1543/tickets'
       );
 
       // Then
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(422);
       expect(response.type).toBe('application/json');
       expect(response.body).toStrictEqual({
-        error:
-          'A "code" property of type string is required in the request body.',
+        "details": {
+          "requestBody.category": {
+            "message": "'category' is required",
+          },
+          "requestBody.code": {
+            "message": "'code' is required",
+          },
+          "requestBody.description": {
+            "message": "'description' is required",
+          },
+          "requestBody.status": {
+            "message": "'status' is required",
+          },
+        },
+        "message": "Validation Failed",
       });
     });
-    test('should return 400 Bad Request for POST when description is not send in the body', async () => {
-      // When
-      const response = await request(app)
-        .post('/kanban-projects/65451c26ac6932248cad1543/tickets')
-        .send({ code: 'ANT-42' });
-
-      // Then
-      expect(response.status).toBe(400);
-      expect(response.type).toBe('application/json');
-      expect(response.body).toStrictEqual({
-        error:
-          'A "description" property of type string is required in the request body.',
-      });
-    });
-    test('should return 400 Bad Request for POST when status is not send in the body', async () => {
-      // When
-      const response = await request(app)
-        .post('/kanban-projects/65451c26ac6932248cad1543/tickets')
-        .send({
-          code: 'ANT-42',
-          description: 'Étude acoustique de chants de cétacés',
-        });
-
-      // Then
-      expect(response.status).toBe(400);
-      expect(response.type).toBe('application/json');
-      expect(response.body).toStrictEqual({
-        error:
-          'A "status" property of type enum [TODO,DOING,DONE] is required in the request body.',
-      });
-    });
-    test('should return 400 Bad Request for POST when status is not one of the Status enum values in the body', async () => {
+    test('should return 422 Bad Request for POST when status is not one of the Status enum values in the body', async () => {
       // When
       const response = await request(app)
         .post('/kanban-projects/65451c26ac6932248cad1543/tickets')
         .send({
           code: 'ANT-42',
           description: 'Étude acoustique de chants de cétacés',
-          status: 'RR',
+          status: 'NotAGoodStatus',
+          category: Category.BIOLOGIE_MARINE
         });
 
       // Then
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(422);
       expect(response.type).toBe('application/json');
       expect(response.body).toStrictEqual({
-        error:
-          'A "status" property of type enum [TODO,DOING,DONE] is required in the request body.',
+        "details": {
+          "requestBody.status": {
+            "message": "Could not match the union against any of the items. Issues: [{\"requestBody.status\":{\"message\":\"should be one of the following; ['TODO']\",\"value\":\"NotAGoodStatus\"}},{\"requestBody.status\":{\"message\":\"should be one of the following; ['DOING']\",\"value\":\"NotAGoodStatus\"}},{\"requestBody.status\":{\"message\":\"should be one of the following; ['DONE']\",\"value\":\"NotAGoodStatus\"}}]",
+            "value": "NotAGoodStatus",
+          },
+        },
+        "message": "Validation Failed",
       });
     });
-    test('should return 400 Bad Request for POST when category is not send in the body', async () => {
+    test('should return 422 Bad Request for POST when category is not send in the body', async () => {
       // When
       const response = await request(app)
         .post('/kanban-projects/65451c26ac6932248cad1543/tickets')
@@ -220,14 +215,20 @@ describe(`Tests d'API`, () => {
           code: 'ANT-42',
           description: 'Étude acoustique de chants de cétacés',
           status: Status.DONE,
+          category: "NotAGoodCategory"
         });
 
-      // Then
-      expect(response.status).toBe(400);
+      // Then      
+      expect(response.status).toBe(422);
       expect(response.type).toBe('application/json');
       expect(response.body).toStrictEqual({
-        error:
-          'A "category" property of type enum [ETUDE_FONDS_MARINS,BIOLOGIE_MARINE,CONSERVATION_MARINE] is required in the request body.',
+        "details": {
+          "requestBody.category": {
+            "message": "Could not match the union against any of the items. Issues: [{\"requestBody.category\":{\"message\":\"should be one of the following; ['ETUDE_FONDS_MARINS']\",\"value\":\"NotAGoodCategory\"}},{\"requestBody.category\":{\"message\":\"should be one of the following; ['BIOLOGIE_MARINE']\",\"value\":\"NotAGoodCategory\"}},{\"requestBody.category\":{\"message\":\"should be one of the following; ['CONSERVATION_MARINE']\",\"value\":\"NotAGoodCategory\"}}]",
+            "value": "NotAGoodCategory",
+          },
+        },
+        "message": "Validation Failed",
       });
     });
     test('should return 201 when sending all expected data in POST', async () => {
@@ -241,7 +242,7 @@ describe(`Tests d'API`, () => {
           category: Category.BIOLOGIE_MARINE,
         });
 
-      // Then
+      // Then    
       expect(response.status).toBe(201);
       expect(response.type).toBe('application/json');
       expect(response.body).toHaveProperty('id', '26ac695462ad13248c5451c3');

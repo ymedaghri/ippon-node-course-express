@@ -4,7 +4,7 @@ import appProvider from '../app';
 import { databaseRepositories, repositories } from '../repositories';
 
 const repositoriesMock: repositories = vi.mocked(databaseRepositories);
-const app = appProvider(repositoriesMock);
+const app = appProvider();
 
 describe(`Tests d'API`, () => {
   test('should return 201 OK for /new-game', async () => {

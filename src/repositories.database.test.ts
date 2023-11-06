@@ -1,9 +1,9 @@
 import { expect, describe, test, afterAll, beforeEach } from 'vitest';
-import { databaseRepositories, mongoPrismaClient } from '../repositories';
+import { databaseRepositories, mongoPrismaClient } from './repositories';
 import {
   Category,
   Status,
-} from '../../database-mongo/prisma/generated/client-mongo';
+} from '../database-mongo/prisma/generated/client-mongo';
 
 describe(`Tests de Repositories : mongoRepository`, () => {
   beforeEach(async () => {

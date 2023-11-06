@@ -1,116 +1,82 @@
-import { Application, Request, Response } from 'express';
+// src/users/usersController.ts
+import {
+  Controller,
+  Get,
+  Path,
+  Post,
+  Put,
+  Query,
+  Route,
+  SuccessResponse,
+  Tags,
+} from "tsoa";
 
-const board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+import { iocContainer } from "../tsoa/ioc";
+
+const board: number[] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 const PLAYER_MARK = 1;
 const COMPUTER_MARK = 2;
 let invincible = false;
 
-export default (app: Application) => {
+
+@Route("")
+@Tags("🕹️ Tic Tac Toe")
+export class TicTacToeEndpoints extends Controller {
+
   /**
-   * @swagger
-   * /new-game:
-   *   post:
-   *     tags:
-   *       - 🕹️ Tic Tac Toe
-   *     summary: Create a new tic tac toe game.
-   *     description: Create a new tic tac toe game and return an empty board of nine cells.
-   *     parameters:
-   *       - name: invincible
-   *         in: query
-   *         description: A boolean to make the computer invincible
-   *         required: false
-   *         schema:
-   *           type: string
-   *     responses:
-   *       201:
-   *         description: A board of nine cells initialized with zeros.
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: object
-   *               properties:
-   *                 board:
-   *                   type: array
-   *                   example: [0, 0, 0, 0, 0, 0, 0, 0, 0]
-   *                   items:
-   *                     type: number
-   *                     enum: [0, 1, 2]
+   * Création d'une nouvelle partie du jeu TicTacToe (Morpion) et renvoi d'un tableau nommé board contenant neuf zéros.
+   * @summary Créé une nouvelle partie de TicTacToe (Morpion)
    */
-  app.post('/new-game', (req: Request, res: Response) => {
-    const invincibleParam = req.query.invincible;
-    if (invincibleParam) {
+  @SuccessResponse("201", "Created")
+  @Post("new-game")
+  public async newGame(
+    @Query("invincible") isInvincible?: boolean
+  ): Promise<{ board: number[] }> {
+
+    if (isInvincible) {
       invincible = true;
     } else {
       invincible = false;
     }
     board.forEach((_, index) => (board[index] = 0));
-    res.status(201).json({ board });
-  });
+    this.setStatus(201);
+    return { board }
+  }
 
   /**
-   * @swagger
-   * /mark-player/{cellNumber}:
-   *   put:
-   *     tags:
-   *       - 🕹️ Tic Tac Toe
-   *     summary: Marks the sell with player mark (1).
-   *     description: Marks the sell with player mark (1).
-   *     parameters:
-   *       - in: path
-   *         name: cellNumber
-   *         schema:
-   *           type: string
-   *     responses:
-   *       200:
-   *         description: A board of nine cells updated with the current player mark.
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: object
-   *               properties:
-   *                 board:
-   *                   type: array
-   *                   example: [0, 0, 1, 0, 0, 0, 0, 0, 0]
-   *                   items:
-   *                     type: number
-   *                     enum: [0, 1, 2]
+   * Marque la cellule indiquée avec un "1" si elle contenait un "0", sinon ne fait rien.
+   * @summary Marque la cellule indiquée avec un "1".
    */
-  app.put('/mark-player/:cellNumber', (req: Request, res: Response) => {
-    const cellNumber = parseInt(req.params.cellNumber);
+  @Put("mark-player/{cellNumber}")
+  public async markPlayer(
+    @Path() cellNumber: number
+  ): Promise<{ board: number[] }> {
+
     if (board[cellNumber] === 0) {
       board[cellNumber] = PLAYER_MARK;
     }
-    res.json({ board });
-  });
+    this.setStatus(200);
+    return { board }
+  }
 
   /**
-   * @swagger
-   * /get-computer-mark:
-   *   get:
-   *     tags:
-   *       - 🕹️ Tic Tac Toe
-   *     summary: Get the computer mark.
-   *     description: Let the computer play and mark its position.
-   *     responses:
-   *       200:
-   *         description: A board of nine cells updated with the current computer mark.
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: object
-   *               properties:
-   *                 board:
-   *                   type: array
-   *                   example: [2, 0, 1, 0, 0, 0, 0, 0, 0]
-   *                   items:
-   *                     type: number
-   *                     enum: [0, 1, 2]
+   * Demande à l'ordinateur de jouer (marque une case avec un "2") et retourne un tableau nommé board après son action de jeu.
+   * @summary Demande à l'ordinateur de jouer.
    */
-  app.get('/get-computer-mark', (req: Request, res: Response) => {
+  @Get("get-computer-mark")
+  public async getComputerMark(
+  ): Promise<{ board: number[] }> {
+
     const boardAferComputerPlay = playComputer(board);
-    res.json({ board: boardAferComputerPlay });
-  });
-};
+
+    this.setStatus(200);
+    return { board: boardAferComputerPlay }
+  }
+
+}
+
+iocContainer.set(TicTacToeEndpoints, new TicTacToeEndpoints())
+
 
 export const playComputer = (board: number[]) => {
   // If there's a winning move, take it.

@@ -1,0 +1,621 @@
+{
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"KanbanProject": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"name"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Pick_KanbanProject.name_": {
+				"properties": {
+					"name": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"name"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"KanbanProjectCreationParams": {
+				"$ref": "#/components/schemas/Pick_KanbanProject.name_"
+			},
+			"CountObject": {
+				"properties": {
+					"count": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"count"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"DetailsObject": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"name"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"MyArrayType": {
+				"items": {
+					"anyOf": [
+						{
+							"$ref": "#/components/schemas/CountObject"
+						},
+						{
+							"$ref": "#/components/schemas/DetailsObject"
+						}
+					]
+				},
+				"type": "array"
+			},
+			"%24Enums.Status": {
+				"type": "string",
+				"enum": [
+					"TODO",
+					"DOING",
+					"DONE"
+				]
+			},
+			"Status": {
+				"$ref": "#/components/schemas/%24Enums.Status"
+			},
+			"%24Enums.Category": {
+				"type": "string",
+				"enum": [
+					"ETUDE_FONDS_MARINS",
+					"BIOLOGIE_MARINE",
+					"CONSERVATION_MARINE"
+				]
+			},
+			"Category": {
+				"$ref": "#/components/schemas/%24Enums.Category"
+			},
+			"Ticket": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"status": {
+						"$ref": "#/components/schemas/Status"
+					},
+					"category": {
+						"$ref": "#/components/schemas/Category"
+					},
+					"projectId": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"required": [
+					"id",
+					"code",
+					"description",
+					"status",
+					"category",
+					"projectId"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Pick_Ticket.Exclude_keyofTicket.id-or-projectId__": {
+				"properties": {
+					"code": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"status": {
+						"$ref": "#/components/schemas/Status"
+					},
+					"category": {
+						"$ref": "#/components/schemas/Category"
+					}
+				},
+				"required": [
+					"code",
+					"description",
+					"status",
+					"category"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"Omit_Ticket.id-or-projectId_": {
+				"$ref": "#/components/schemas/Pick_Ticket.Exclude_keyofTicket.id-or-projectId__",
+				"description": "Construct a type with the properties of T except for those in type K."
+			},
+			"TicketCreationParams": {
+				"$ref": "#/components/schemas/Omit_Ticket.id-or-projectId_"
+			}
+		},
+		"securitySchemes": {
+			"api_key": {
+				"type": "apiKey",
+				"name": "access_token",
+				"in": "query"
+			},
+			"tsoa_auth": {
+				"type": "oauth2",
+				"flows": {
+					"implicit": {
+						"authorizationUrl": "http://swagger.io/api/oauth/dialog",
+						"scopes": {
+							"write:pets": "modify things",
+							"read:pets": "read things"
+						}
+					}
+				}
+			},
+			"jwt": {
+				"type": "http",
+				"scheme": "bearer",
+				"bearerFormat": "JWT"
+			}
+		}
+	},
+	"info": {
+		"title": "Mon API Express avec TSOA",
+		"version": "1.0.0",
+		"description": "Une API express en typescript et sans boilerplate !"
+	},
+	"openapi": "3.0.0",
+	"paths": {
+		"/kanban-projects": {
+			"post": {
+				"operationId": "CreateAKanbanProject",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/KanbanProject"
+								}
+							}
+						}
+					}
+				},
+				"description": "Création d'un nouveau projet kanban vide (sans aucun ticket)",
+				"summary": "Créé un nouveau projet kanban.",
+				"tags": [
+					"📊 Kanban"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/KanbanProjectCreationParams"
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"operationId": "GelAllKanbanProjects",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/KanbanProject"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Récupèration tous les projets kanban et leurs tickets associés.",
+				"summary": "Récupère tous les projets kanban et leurs tickets associés.",
+				"tags": [
+					"📊 Kanban"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/kanban-projects/{projectId}": {
+			"delete": {
+				"operationId": "DeleteAKanbanProject",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MyArrayType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Suppression d'un projet kanban et de tous ses tickets associés.",
+				"summary": "Supprime nouveau projet kanban et ses tickets.",
+				"tags": [
+					"📊 Kanban"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "projectId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/kanban-projects/{projectId}/tickets": {
+			"post": {
+				"operationId": "CreateATicketForAKanbanProject",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Ticket"
+								}
+							}
+						}
+					}
+				},
+				"description": "Création d'un ticket au sein d'un projet kanban.",
+				"summary": "Créé un ticket au sein d'un projet kanban.",
+				"tags": [
+					"📊 Kanban"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "projectId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/TicketCreationParams"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/kanban-projects/{projectId}/tickets/{ticketId}": {
+			"delete": {
+				"operationId": "DeleteATicketOfAKanbanProject",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Ticket"
+								}
+							}
+						}
+					}
+				},
+				"description": "Suppression d'un ticket au sein d'un projet kanban.",
+				"summary": "Supprime un ticket au sein d'un projet kanban.",
+				"tags": [
+					"📊 Kanban"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "projectId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "ticketId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/meteo/{ville}": {
+			"get": {
+				"operationId": "GetPrevisionsMeteo",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "Récupération des prévisions météo d'une ville passée en paramètre.",
+				"summary": "Récupére les prévisions météo.",
+				"tags": [
+					"🌤️ Meteo"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "ville",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/persons/{nom}": {
+			"get": {
+				"operationId": "GetAHelloWorld",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Recevoir un Hello World <Nom>.",
+				"summary": "Toujours le fameux Hello world.",
+				"tags": [
+					"🕵🏽 MI6"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "nom",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/protected/person": {
+			"get": {
+				"operationId": "GetASecretIdentity",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Connaitre l'identité d'un agent de la couronne <Nom>.",
+				"summary": "Toujours le même on dirait.",
+				"tags": [
+					"🕵🏽 MI6"
+				],
+				"security": [
+					{
+						"jwt": [
+							"admin"
+						]
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/new-game": {
+			"post": {
+				"operationId": "NewGame",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"board": {
+											"items": {
+												"type": "number",
+												"format": "double"
+											},
+											"type": "array"
+										}
+									},
+									"required": [
+										"board"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Création d'une nouvelle partie du jeu TicTacToe (Morpion) et renvoi d'un tableau nommé board contenant neuf zéros.",
+				"summary": "Créé une nouvelle partie de TicTacToe (Morpion)",
+				"tags": [
+					"🕹️ Tic Tac Toe"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "invincible",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					}
+				]
+			}
+		},
+		"/mark-player/{cellNumber}": {
+			"put": {
+				"operationId": "MarkPlayer",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"board": {
+											"items": {
+												"type": "number",
+												"format": "double"
+											},
+											"type": "array"
+										}
+									},
+									"required": [
+										"board"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Marque la cellule indiquée avec un \"1\" si elle contenait un \"0\", sinon ne fait rien.",
+				"summary": "Marque la cellule indiquée avec un \"1\".",
+				"tags": [
+					"🕹️ Tic Tac Toe"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "cellNumber",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/get-computer-mark": {
+			"get": {
+				"operationId": "GetComputerMark",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"board": {
+											"items": {
+												"type": "number",
+												"format": "double"
+											},
+											"type": "array"
+										}
+									},
+									"required": [
+										"board"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Demande à l'ordinateur de jouer (marque une case avec un \"2\") et retourne un tableau nommé board après son action de jeu.",
+				"summary": "Demande à l'ordinateur de jouer.",
+				"tags": [
+					"🕹️ Tic Tac Toe"
+				],
+				"security": [],
+				"parameters": []
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "http://localhost:3000",
+			"description": "Local environment"
+		}
+	]
+}

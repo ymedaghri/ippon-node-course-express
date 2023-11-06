@@ -1,5 +1,5 @@
 import { expect, describe, test } from 'vitest';
-import { playComputer } from './tictactoe';
+import { playComputer } from './tictactoeEndpoints';
 
 describe('Tic Tac Toe', () => {
   test('Doit prendre le centre si il est vide', () => {
@@ -19,7 +19,7 @@ describe('Tic Tac Toe', () => {
     ['troisième', [0, 0, 0, 0, 0, 0, 2, 0, 2], [0, 0, 0, 0, 0, 0, 2, 2, 2]],
   ])(
     'Doit effectuer un mouvement gagnant sur la %s ligne si il est possible',
-    (_, board, expectation) => {
+    (_libelleTest, board, expectation) => {
       // When
       playComputer(board);
 
