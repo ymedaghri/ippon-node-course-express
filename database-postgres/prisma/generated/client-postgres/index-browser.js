@@ -109,19 +109,29 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
-  createdAt: 'createdAt',
   email: 'email',
   name: 'name',
   role: 'role'
+};
+
+exports.Prisma.ProfileScalarFieldEnum = {
+  id: 'id',
+  bio: 'bio',
+  userId: 'userId'
 };
 
 exports.Prisma.PostScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  published: 'published',
   title: 'title',
+  published: 'published',
   authorId: 'authorId'
+};
+
+exports.Prisma.CategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name'
 };
 
 exports.Prisma.SortOrder = {
@@ -145,7 +155,9 @@ exports.Role = exports.$Enums.Role = {
 
 exports.Prisma.ModelName = {
   User: 'User',
-  Post: 'Post'
+  Profile: 'Profile',
+  Post: 'Post',
+  Category: 'Category'
 };
 
 /**
